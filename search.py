@@ -91,7 +91,7 @@ def main():
                 optimizer_M.step()
 
             epoch_loss.append(np.array(train_loss).mean())
-            print(f'total_loss: {epoch_loss[-1]:.3f}')
+            print(f'total training loss: {epoch_loss[-1]:.3f}')
 
             if epoch >= config.alpha_epoch:
                 print(f"[{epoch}/{config.epoch}] Start searching architecture ...........")
@@ -121,12 +121,15 @@ def main():
                     error = torch.mean(torch.abs(output - Y))
                     print(f'error = {error:.3f}')
 
-                    test_error.append(error)
+                    test_error.append(error.data.cpu())
 
-            if error < best_error:
-                print(f'Find best model, error = {error:.3f}')
+            total_test_error = np.array(test_error).mean()
+            print(f'total testing error: {total_test_error:.3f}')
+
+            if total_test_error < best_error:
+                print(f'Find best model, error = {total_test_error:.3f}')
                 torch.save(model.state_dict(), config.save_best_model_path)
-                best_error = error
+                best_error = total_test_error
 
 
         except Exception as err:
