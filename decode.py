@@ -37,7 +37,7 @@ class Loader(object):
         return fea_genotype, mat_genotype
 
 def get_new_network_cell():
-    config = Config_Decode()
+    config = Config_LEAStereo_Decode()
     load_model = Loader(config)
     fea_net_paths, fea_net_paths_space, mat_net_paths, mat_net_paths_space = load_model.decode_architecture()
     fea_genotype, mat_genotype = load_model.decode_cell()

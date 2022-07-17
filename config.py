@@ -25,8 +25,15 @@ class Config_Flyingthings3D(Config):
         self.width = 576
         self.max_disparity = 96
 
+class Config_Map2D(Config):
+    def __init__(self):
+        super().__init__()
 
-class Config_Search(Config_Flyingthings3D):
+        self.height = 112
+        self.width = 112
+
+
+class Config_LEAStereo_Search(Config_Flyingthings3D):
     def __init__(self):
         super().__init__()
         # AutoStereo settings
@@ -43,7 +50,7 @@ class Config_Search(Config_Flyingthings3D):
         self.alpha_epoch = 3
         self.epoch = 10
         self.save_history_file_path = './images/history_AutoStereo.png'
-        self.save_best_model_path = './models/retrain/best_AutoStereo.pth'
+        self.save_best_model_path = './models/retrain/LEAStereo/best_AutoStereo.pth'
 
         # Input size
         self.height = 72
@@ -54,15 +61,15 @@ class Config_Search(Config_Flyingthings3D):
         # self.width = 384
         # self.max_disparity = 192
 
-class Config_Decode(Config_Flyingthings3D):
+class Config_LEAStereo_Decode(Config_Flyingthings3D):
     def __init__(self):
         super().__init__()
 
         # decode
-        self.resume = './models/retrain/best_AutoStereo.pth'
+        self.resume = './models/retrain/LEAStereo/best_AutoStereo.pth'
         self.step = 3
 
-class Config_Train(Config_Flyingthings3D):
+class Config_LEAStereo_Train(Config_Flyingthings3D):
     def __init__(self):
         super().__init__()
         self.epoch = 1
@@ -88,3 +95,44 @@ class Config_Train(Config_Flyingthings3D):
         self.save_best_model_path = './models/release/best_LEAStereo.pth'
 
 
+class Config_Map2D_Search(Config_Map2D):
+    def __init__(self):
+        super().__init__()
+        # AutoStereo settings
+        self.num_layers = 12
+        self.filter_multiplier = 4
+        self.block_multiplier = 3
+        self.step = 3
+
+        # Other
+        self.alpha_epoch = 3
+        self.epoch = 30
+        self.save_history_file_path = './images/history_AutoMap2D.png'
+        self.save_best_model_path = './models/retrain/Map2D/best_AutoMap2D.pth'
+
+class Config_Map2D_Decode(Config_Map2D):
+    def __init__(self):
+        super().__init__()
+
+        # decode
+        self.resume = './models/retrain/Map2D/best_AutoMap2D.pth'
+        self.step = 3
+
+class Config_Map2D_Train(Config_Map2D):
+    def __init__(self):
+        super().__init__()
+        self.epoch = 50
+
+        # LEAStereo settings
+        self.num_layers = 12
+        self.filter_multiplier = 8
+        self.block_multiplier = 4
+        self.step = 3
+
+        # train
+        self.resume = './models/retrain/Map2D/best_Map2D.pth'
+        self.net_arch_auto2d = './models/retrain/Map2D/auto2d_network_path.npy'
+        self.cell_arch_auto2d = './models/retrain/Map2D/auto2d_genotype.npy'
+
+        self.save_history_file_path = './images/history_Map2D.png'
+        self.save_best_model_path = './models/retrain/Map2D/best_Map2D.pth'

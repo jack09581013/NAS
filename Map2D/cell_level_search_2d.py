@@ -1,6 +1,6 @@
 import torch.nn.functional as F
-from LEAStereo.operations_2d import *
-from LEAStereo.genotypes_2d import PRIMITIVES
+from Map2D.operations_2d import *
+from Map2D.genotypes_2d import PRIMITIVES
 
 class MixedOp(nn.Module):
 

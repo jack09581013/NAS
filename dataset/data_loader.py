@@ -5,6 +5,7 @@ import torch
 import os
 import utils
 
+
 class FlyingThings3D(Dataset):
 
     # height, width = 540, 960
@@ -124,6 +125,42 @@ class FlyingThings3D(Dataset):
 
     def __str__(self):
         return 'FlyingThings3D'
+
+
+class Map2D_Dataset(Dataset):
+
+    # height, width = 540, 960
+    def __init__(self, type, height, width):
+
+        if type == 'trainA':
+            torch.random.manual_seed(0)
+            self.X = torch.rand(10, 4, height, width)
+            self.Y = torch.rand(10, 3, height * 2, width * 2)
+            self.size = 10
+
+        elif type == 'trainB':
+            torch.random.manual_seed(1)
+            self.X = torch.rand(10, 4, height, width)
+            self.Y = torch.rand(10, 3, height * 2, width * 2)
+            self.size = 10
+
+        elif type == 'test':
+            torch.random.manual_seed(2)
+            self.X = torch.rand(10, 4, height, width)
+            self.Y = torch.rand(10, 3, height * 2, width * 2)
+            self.size = 10
+
+        else:
+            raise Exception(f'Unknown type: "{type}"')
+
+    def __getitem__(self, index):
+        return self.X[index], self.Y[index]
+
+    def __len__(self):
+        return self.size
+
+    def __str__(self):
+        return 'Map2D_Dataset'
 
 
 def random_subset(dataset, size, seed=None):

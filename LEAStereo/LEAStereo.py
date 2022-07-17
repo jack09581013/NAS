@@ -15,7 +15,7 @@ class LEAStereo(nn.Module):
 
         network_path_fea, cell_arch_fea = np.load(config.net_arch_fea), np.load(config.cell_arch_fea)
         network_path_mat, cell_arch_mat = np.load(config.net_arch_mat), np.load(config.cell_arch_mat)
-        print('Feature network path:{}\nMatching network path:{} \n'.format(network_path_fea, network_path_mat))
+        print('Feature network path: {}\nMatching network path: {}\n'.format(network_path_fea, network_path_mat))
 
         network_arch_fea = network_layer_to_space(network_path_fea)
         network_arch_mat = network_layer_to_space(network_path_mat)

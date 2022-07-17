@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    config = Config_Search()
+    config = Config_LEAStereo_Search()
     device = config.device
     exception_count = 0
 
