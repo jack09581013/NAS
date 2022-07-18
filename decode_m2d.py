@@ -2,7 +2,7 @@ import os
 import sys
 import numpy as np
 import torch
-from LEAStereo.decoding_formulas import Decoder
+from Map2D.decoding_formulas import Decoder
 from config import *
 
 class Loader(object):
