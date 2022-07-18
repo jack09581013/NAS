@@ -29,8 +29,11 @@ class Config_Map2D(Config):
     def __init__(self):
         super().__init__()
 
-        self.height = 112
-        self.width = 112
+        # self.height = 112
+        # self.width = 112
+
+        self.height = 16
+        self.width = 16
 
 
 class Config_LEAStereo_Search(Config_Flyingthings3D):
@@ -99,14 +102,14 @@ class Config_Map2D_Search(Config_Map2D):
     def __init__(self):
         super().__init__()
         # AutoStereo settings
-        self.num_layers = 12
+        self.num_layers = 4
         self.filter_multiplier = 4
         self.block_multiplier = 3
         self.step = 3
 
         # Other
         self.alpha_epoch = 3
-        self.epoch = 30
+        self.epoch = 10
         self.save_history_file_path = './images/history_AutoMap2D.png'
         self.save_best_model_path = './models/retrain/Map2D/best_AutoMap2D.pth'
 
@@ -124,7 +127,7 @@ class Config_Map2D_Train(Config_Map2D):
         self.epoch = 50
 
         # LEAStereo settings
-        self.num_layers = 12
+        self.num_layers = 4
         self.filter_multiplier = 8
         self.block_multiplier = 4
         self.step = 3
