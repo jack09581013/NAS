@@ -65,6 +65,7 @@ class Cell(nn.Module):
 
     def scale_dimension(self, dim, scale):
         assert isinstance(dim, int)
+        # return int((float(dim) - 1.0) * scale + 1.0) if dim % 2 else int(dim * scale)
         return int(dim * scale)
 
     def prev_feature_resize(self, prev_feature, mode):

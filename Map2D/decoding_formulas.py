@@ -49,7 +49,6 @@ class Decoder(object):
                 self.network_space[layer][1] = F.softmax(self._betas[layer][1], dim=-1)
                 self.network_space[layer][2] = F.softmax(self._betas[layer][2], dim=-1)
 
-
             else:
                 self.network_space[layer][0][1:] = F.softmax(self._betas[layer][0][1:], dim=-1) * (2/3)
                 self.network_space[layer][1] = F.softmax(self._betas[layer][1], dim=-1)
