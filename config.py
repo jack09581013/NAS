@@ -128,8 +128,8 @@ class Config_Map2D_Train(Config_Map2D):
 
         # LEAStereo settings
         self.num_layers = 4
-        self.filter_multiplier = 8
-        self.block_multiplier = 4
+        self.filter_multiplier = 4
+        self.block_multiplier = 3
         self.step = 3
 
         # train
