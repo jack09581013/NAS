@@ -49,12 +49,12 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=config.batch, shuffle=False,
                              num_workers=config.num_workers, pin_memory=True, drop_last=True)
 
-    epoch_loss = []
+    train_loss = []
+    test_loss = []
     for epoch in range(config.epoch):
         try:
             print(f"[{epoch}/{config.epoch}] Start training ...........")
-            train_loss = []
-            test_error = []
+            total_loss = []
 
             model.train()
             for batch_index, (X, Y) in enumerate(train_loader):
@@ -66,35 +66,40 @@ def main():
                 output = model(X)
                 loss = F.smooth_l1_loss(output, Y, reduction='mean')
                 print(f'loss = {loss:.3f}')
-                train_loss.append(loss.data.cpu())
+                total_loss.append(loss.data.cpu())
                 loss.backward()
 
                 optimizer.step()
 
-            epoch_loss.append(np.array(train_loss).mean())
-            print(f'total_loss: {epoch_loss[-1]:.3f}')
-
-            if epoch < config.epoch - 1:
-                continue
+            train_loss.append(np.array(total_loss).mean())
+            print(f'avg train loss: {train_loss[-1]:.3f}')
 
             print(f"[{epoch}/{config.epoch}] Start validation ...........")
+            total_loss = []
+
             model.eval()
             with torch.no_grad():
-                # for batch_index, (X, Y) in enumerate(test_loader):
-                for batch_index, (X, Y) in enumerate(train_loader):
+                # for batch_index, (X, Y) in enumerate(train_loader):
+                for batch_index, (X, Y) in enumerate(test_loader):
                     X = X.to(device, non_blocking=True)
                     Y = Y.to(device, non_blocking=True)
 
                     output = model(X)
-                    error = torch.mean(torch.abs(output - Y))
-                    print(output.data.cpu().numpy().reshape(-1)[:6])
-                    print(Y.data.cpu().numpy().reshape(-1)[:6])
-                    print()
-                    print(f'error = {error:.3f}')
+                    # error = torch.mean(torch.abs(output - Y))
+                    loss = F.smooth_l1_loss(output, Y, reduction='mean')
 
-                    test_error.append(error)
+                    # last epoch
+                    if epoch >= config.epoch - 1:
+                        print(f'loss = {loss:.3f}')
+                        print(output.data.cpu().numpy().reshape(-1)[:6])
+                        print(Y.data.cpu().numpy().reshape(-1)[:6])
+                        print()
 
+                    total_loss.append(loss.data.cpu())
                     # utils.plot_image(X[0], output, target=True)
+
+            test_loss.append(np.array(total_loss).mean())
+            print(f'avg test loss: {test_loss[-1]:.3f}')
 
         except Exception as err:
             # traceback.format_exc()  # Traceback string
@@ -105,7 +110,8 @@ def main():
             if config.is_debug:
                 exit(-1)
 
-    plt.plot(epoch_loss, label='Train', marker='o')
+    plt.plot(train_loss, label='Train', marker='o')
+    plt.plot(test_loss, label='Test', marker='o')
     plt.savefig(config.save_history_file_path)
 
 

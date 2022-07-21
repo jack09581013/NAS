@@ -101,7 +101,13 @@ class Config_LEAStereo_Train(Config_Flyingthings3D):
 class Config_Map2D_Search(Config_Map2D):
     def __init__(self):
         super().__init__()
-        # AutoStereo settings
+        # settings 1
+        # self.num_layers = 8
+        # self.filter_multiplier = 8
+        # self.block_multiplier = 4
+        # self.step = 3
+
+        # settings 2
         self.num_layers = 4
         self.filter_multiplier = 4
         self.block_multiplier = 3
@@ -109,7 +115,7 @@ class Config_Map2D_Search(Config_Map2D):
 
         # Other
         self.alpha_epoch = 3
-        self.epoch = 10
+        self.epoch = 50
         self.save_history_file_path = './images/history_AutoMap2D.png'
         self.save_best_model_path = './models/retrain/Map2D/best_AutoMap2D.pth'
 
@@ -126,7 +132,7 @@ class Config_Map2D_Train(Config_Map2D):
         super().__init__()
         self.epoch = 50
 
-        # LEAStereo settings
+        # settings 2
         self.num_layers = 4
         self.filter_multiplier = 4
         self.block_multiplier = 3
