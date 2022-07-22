@@ -27,8 +27,23 @@ def main():
                       step=config.step, device=device)
     model.to(device)
 
-    optimizer = optim.Adam(params=model.auto2d.weight_parameters(), lr=config.learning_rate, betas=(0.9, 0.999))
-    architect_optimizer = optim.Adam(params=model.auto2d.arch_parameters(), lr=config.learning_rate, betas=(0.9, 0.999))
+    optimizer = torch.optim.SGD(
+        model.auto2d.weight_parameters(),
+        config.weight_lr,
+        momentum=config.momentum,
+        weight_decay=config.weight_decay
+    )
+
+    architect_optimizer = torch.optim.SGD(
+        model.auto2d.arch_parameters(),
+        config.weight_lr,
+        momentum=config.momentum,
+        weight_decay=config.weight_decay
+    )
+
+    # architect_optimizer = torch.optim.Adam(model.auto2d.arch_parameters(),
+    #                                        lr=config.arch_lr, betas=(0.9, 0.999),
+    #                                        weight_decay=config.arch_weight_decay)
 
     train_datasetA = Map2D_Dataset('trainA', config.height, config.width)
     train_datasetB = Map2D_Dataset('trainB', config.height, config.width)

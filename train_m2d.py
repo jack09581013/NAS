@@ -12,18 +12,23 @@ import traceback
 import datetime
 from config import *
 from Map2D.Map2D import Map2D
+from simple_model.SimpleModel import SimpleModel
 import matplotlib.pyplot as plt
 
 
 def main():
-    config = Config_Map2D_Train()
+    # config = Config_Map2D_Train()
+    config = Config_SimpleModel()
     device = config.device
     exception_count = 0
 
     if 'cuda' in device:
         torch.backends.cudnn.benchmark = True
+    if isinstance(config, Config_Map2D_Train):
+        model = Map2D(config)
+    elif isinstance(config, Config_SimpleModel):
+        model = SimpleModel()
 
-    model = Map2D(config)
     if os.path.isfile(config.resume):
         print('Load model from ' + config.resume)
         model.load_state_dict(torch.load(config.resume))
@@ -31,7 +36,7 @@ def main():
         print('Cannot find any model')
     model.to(device)
 
-    optimizer = optim.Adam(params=model.parameters(), lr=config.learning_rate, betas=(0.9, 0.999))
+    optimizer = optim.Adam(params=model.parameters(), lr=config.arch_lr, betas=(0.9, 0.999))
 
     train_dataset = Map2D_Dataset('trainA', config.height, config.width)
     test_dataset = Map2D_Dataset('test', config.height, config.width)
@@ -42,10 +47,12 @@ def main():
     print('Number of training data:', len(train_dataset))
     print('Number of testing data:', len(test_dataset))
     print(f'Total number of model parameters : {sum([p.data.nelement() for p in model.parameters()]):,}')
-    print(f'Number of Auto2D Net parameters: {sum([p.data.nelement() for p in model.auto2d.parameters()]):,}')
+
+    if isinstance(config, Config_Map2D_Train):
+        print(f'Number of Auto2D Net parameters: {sum([p.data.nelement() for p in model.auto2d.parameters()]):,}')
 
     train_loader = DataLoader(train_dataset, batch_size=config.batch, shuffle=False,
-                               num_workers=config.num_workers, pin_memory=True, drop_last=True)
+                              num_workers=config.num_workers, pin_memory=True, drop_last=True)
     test_loader = DataLoader(test_dataset, batch_size=config.batch, shuffle=False,
                              num_workers=config.num_workers, pin_memory=True, drop_last=True)
 

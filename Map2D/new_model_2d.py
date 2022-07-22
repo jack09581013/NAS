@@ -70,7 +70,8 @@ class Cell(nn.Module):
 
             s = sum(new_states)
             offset += len(states)
-            states.append(s)
+            if not isinstance(s, int):
+                states.append(s)
 
         concat_feature = torch.cat(states[-self.block_multiplier:], dim=1)
         return prev_input, concat_feature
@@ -149,7 +150,7 @@ class newAuto2D(nn.Module):
 
         last_output = out[-1]
 
-        h, w = x.size()[2], x.size()[3]
+        h, w = stem2.size()[2], stem2.size()[3]
         upsample_2 = nn.Upsample(size=(h * 2, w * 2), mode='bilinear', align_corners=True)
         upsample_4 = nn.Upsample(size=(h, w), mode='bilinear', align_corners=True)
         upsample_8 = nn.Upsample(size=(h // 2, w // 2), mode='bilinear', align_corners=True)
