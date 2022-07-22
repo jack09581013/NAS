@@ -17,10 +17,17 @@ class Map2D(nn.Module):
 
         network_arch_auto2d = network_layer_to_space(network_path_auto2d)
 
-        self.auto2d = newAuto2D(network_arch_auto2d, cell_arch_auto2d, config=config)
+        self.auto2d = newAuto2D(network_arch_auto2d, cell_arch_auto2d, config=config)        
+        self.last_1 = nn.Conv2d(3, 3, 3, padding=1, bias=False)
+        self.last_2 = nn.Conv2d(3, 3, 3, padding=1, bias=False)
+        self.last_3 = nn.Conv2d(3, 3, 3, padding=1, bias=False)
+
 
     def forward(self, x):
         x = self.auto2d(x)
+        x = self.last_1(x)
+        x = self.last_2(x)
+        x = self.last_3(x)
         return x
 
     def get_params(self):

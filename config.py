@@ -5,16 +5,7 @@ class Config:
         self.version = None
         self.max_version = 2000  # KITTI 2015 v1497 recommended version
         self.batch = 1
-
-        # weight_parameters optimizer
-        self.weight_lr = 0.001
-        self.momentum = 0.9
-        self.weight_decay = 3e-4
-
-        # arch_parameters optimizer
-        self.arch_lr = 0.001
-        self.arch_weight_decay = 1e-3
-
+        self.learning_rate = 0.001
         self.seed = 0
         self.is_debug = True
         self.num_workers = 0
@@ -122,14 +113,14 @@ class Config_Map2D_Search(Config_Map2D):
         # self.step = 3
 
         # settings 3
-        self.num_layers = 6
+        self.num_layers = 8
         self.filter_multiplier = 4
         self.block_multiplier = 5
         self.step = 5
 
         # Other
         self.alpha_epoch = 3
-        self.epoch = 30
+        self.epoch = 20
         self.save_history_file_path = './images/history_AutoMap2D.png'
         self.save_best_model_path = './models/retrain/Map2D/best_AutoMap2D.pth'
 
@@ -139,7 +130,7 @@ class Config_Map2D_Decode(Config_Map2D):
 
         # decode
         self.resume = './models/retrain/Map2D/best_AutoMap2D.pth'
-        self.step = 3
+        self.step = 5
 
 class Config_Map2D_Train(Config_Map2D):
     def __init__(self):
@@ -147,7 +138,7 @@ class Config_Map2D_Train(Config_Map2D):
         self.epoch = 50
 
         # settings 3
-        self.num_layers = 6
+        self.num_layers = 8
         self.filter_multiplier = 4
         self.block_multiplier = 5
         self.step = 5

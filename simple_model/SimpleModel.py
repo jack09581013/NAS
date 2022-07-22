@@ -6,7 +6,8 @@ class SimpleModel(nn.Module):
     def __init__(self):
         super(SimpleModel, self).__init__()
         self.layers = nn.ModuleList()
-        for i in range(8):
+        self.layer_size = 4
+        for i in range(self.layer_size):
             self.layers.append(ConvBR(4, 4))
 
         self.last_1 = nn.Conv2d(4, 4, 3, padding=1, bias=False)
@@ -14,7 +15,7 @@ class SimpleModel(nn.Module):
         self.last_3 = nn.ConvTranspose2d(4, 3, kernel_size=4, stride=2, padding=1, bias=False)
 
     def forward(self, x):
-        for i in range(8):
+        for i in range(self.layer_size):
             x = self.layers[i](x)
 
         x = self.last_1(x)

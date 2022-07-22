@@ -61,7 +61,7 @@ class Cell(nn.Module):
             for j, h in enumerate(states):
                 branch_index = offset + j
                 if branch_index in self.cell_arch[:, 0]:
-                    if prev_prev_input is None and j == 0:
+                    if prev_prev_input is None:
                         ops_index += 1
                         continue
                     new_state = self._ops[ops_index](h)
@@ -70,9 +70,8 @@ class Cell(nn.Module):
 
             s = sum(new_states)
             offset += len(states)
-            if not isinstance(s, int):
-                states.append(s)
-
+            states.append(s)
+        
         concat_feature = torch.cat(states[-self.block_multiplier:], dim=1)
         return prev_input, concat_feature
 

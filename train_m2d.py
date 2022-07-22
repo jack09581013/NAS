@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 
 
 def main():
-    # config = Config_Map2D_Train()
-    config = Config_SimpleModel()
+    config = Config_Map2D_Train()
+    # config = Config_SimpleModel()
     device = config.device
     exception_count = 0
 
@@ -36,13 +36,13 @@ def main():
         print('Cannot find any model')
     model.to(device)
 
-    optimizer = optim.Adam(params=model.parameters(), lr=config.arch_lr, betas=(0.9, 0.999))
+    optimizer = optim.Adam(params=model.parameters(), lr=config.learning_rate, betas=(0.9, 0.999))
 
     train_dataset = Map2D_Dataset('trainA', config.height, config.width)
     test_dataset = Map2D_Dataset('test', config.height, config.width)
 
     print(f'Batch size: {config.batch}')
-    print('Using dataset:', config.dataset_name)
+    print('Using dataset:', train_dataset)
     print('Image size:', (config.height, config.width))
     print('Number of training data:', len(train_dataset))
     print('Number of testing data:', len(test_dataset))
@@ -117,6 +117,8 @@ def main():
             if config.is_debug:
                 exit(-1)
 
+    print(f'Total train loss: {np.array(train_loss).mean():.5f}')
+    print(f'Total test loss: {np.array(test_loss).mean():.5f}')
     plt.plot(train_loss, label='Train', marker='o')
     plt.plot(test_loss, label='Test', marker='o')
     plt.savefig(config.save_history_file_path)

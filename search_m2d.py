@@ -27,30 +27,15 @@ def main():
                       step=config.step, device=device)
     model.to(device)
 
-    optimizer = torch.optim.SGD(
-        model.auto2d.weight_parameters(),
-        config.weight_lr,
-        momentum=config.momentum,
-        weight_decay=config.weight_decay
-    )
-
-    architect_optimizer = torch.optim.SGD(
-        model.auto2d.arch_parameters(),
-        config.weight_lr,
-        momentum=config.momentum,
-        weight_decay=config.weight_decay
-    )
-
-    # architect_optimizer = torch.optim.Adam(model.auto2d.arch_parameters(),
-    #                                        lr=config.arch_lr, betas=(0.9, 0.999),
-    #                                        weight_decay=config.arch_weight_decay)
+    optimizer = torch.optim.Adam(model.auto2d.weight_parameters(), lr=config.learning_rate, betas=(0.9, 0.999))
+    architect_optimizer = torch.optim.Adam(model.auto2d.arch_parameters(), lr=config.learning_rate, betas=(0.9, 0.999))
 
     train_datasetA = Map2D_Dataset('trainA', config.height, config.width)
     train_datasetB = Map2D_Dataset('trainB', config.height, config.width)
     test_dataset = Map2D_Dataset('test', config.height, config.width)
 
     print(f'Batch size: {config.batch}')
-    print('Using dataset:', config.dataset_name)
+    print('Using dataset:', train_datasetA)
     print('Image size:', (config.height, config.width))
     print('Number of training data:', len(train_datasetA))
     print('Number of testing data:', len(test_dataset))
@@ -68,7 +53,7 @@ def main():
     epoch_loss = []
     for epoch in range(config.epoch):
         try:
-            print(f"[{epoch}/{config.epoch}] Start training ...........")
+            print(f"[{epoch + 1}/{config.epoch}] Start training ...........")
             train_loss = []
             test_error = []
 
@@ -92,8 +77,8 @@ def main():
             epoch_loss.append(np.array(train_loss).mean())
             print(f'total training loss: {epoch_loss[-1]:.3f}')
 
-            if epoch >= config.alpha_epoch:
-                print(f"[{epoch}/{config.epoch}] Start searching architecture ...........")
+            if epoch >= config.alpha_epoch - 1:
+                print(f"[{epoch + 1}/{config.epoch}] Start searching architecture ...........")
                 for batch_index, (X, Y) in enumerate(train_loaderB):
                     X = X.to(device, non_blocking=True)
                     Y = Y.to(device, non_blocking=True)
@@ -107,7 +92,7 @@ def main():
 
                     architect_optimizer.step()
 
-            print(f"[{epoch}/{config.epoch}] Start validation ...........")
+            print(f"[{epoch + 1}/{config.epoch}] Start validation ...........")
             model.eval()
             with torch.no_grad():
                 for batch_index, (X, Y) in enumerate(test_loader):
@@ -123,7 +108,7 @@ def main():
             total_test_error = np.array(test_error).mean()
             print(f'total testing error: {total_test_error:.3f}, best error: {best_error:.3f}')
 
-            if epoch >= config.alpha_epoch and total_test_error < best_error:
+            if epoch >= config.alpha_epoch - 1 and total_test_error < best_error:
                 print(f'Find best model, error = {total_test_error:.3f}')
                 torch.save(model.state_dict(), config.save_best_model_path)
                 best_error = total_test_error
