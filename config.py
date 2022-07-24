@@ -120,7 +120,7 @@ class Config_Map2D_Search(Config_Map2D):
 
         # Other
         self.alpha_epoch = 3
-        self.epoch = 20
+        self.epoch = 40
         self.save_history_file_path = './images/history_AutoMap2D.png'
         self.save_best_model_path = './models/retrain/Map2D/best_AutoMap2D.pth'
 

@@ -17,14 +17,20 @@ class AutoMap2D(nn.Module):
         self.device = device
 
         self.auto2d = Auto2D(self.layers, self.filter, self.block, self.step)
-        self.last_1 = nn.Conv2d(3, 3, 3, padding=1, bias=False)
-        self.last_2 = nn.Conv2d(3, 3, 3, padding=1, bias=False)
-        self.last_3 = nn.Conv2d(3, 3, 3, padding=1, bias=False)
+        self.last_1 = nn.Conv2d(3, 3, 3, padding=1)
+        self.last_2 = nn.Conv2d(3, 3, 3, padding=1)
+        self.last_3 = nn.Conv2d(3, 3, 3, padding=1)
+        self.last_4 = nn.Conv2d(3, 3, 3, padding=1)
+        self.last_5 = nn.Conv2d(3, 3, 3, padding=1)
+        self.last_6 = nn.Conv2d(3, 3, 3, padding=1)
 
     def forward(self, x):
         x = self.auto2d(x)
         x = self.last_1(x)
         x = self.last_2(x)
         x = self.last_3(x)
+        x = self.last_4(x)
+        x = self.last_5(x)
+        x = self.last_6(x)
         return x
 
