@@ -162,6 +162,36 @@ class Map2D_Dataset(Dataset):
     def __str__(self):
         return 'Map2D_Dataset'
 
+class EfficientNet_Dataset(Dataset):
+
+    # height, width = 540, 960
+    def __init__(self, type, height, width):
+
+        if type == 'train':
+            torch.random.manual_seed(0)
+            self.X = torch.randint(low=0, high=256, size=(10, 4, height, width))
+            self.X = torch.randint(low=0, high=256, size=(10, 4, height * 2, width * 2))
+            self.size = 10
+
+        elif type == 'test':
+            torch.random.manual_seed(1)
+            self.X = torch.randint(low=0, high=256, size=(10, 4, height, width))
+            self.X = torch.randint(low=0, high=256, size=(10, 4, height * 2, width * 2))
+            self.size = 10
+
+        else:
+            raise Exception(f'Unknown type: "{type}"')
+
+    def __getitem__(self, index):
+        return self.X[index], self.Y[index]
+
+    def __len__(self):
+        return self.size
+
+    def __str__(self):
+        return 'EfficientNet_Dataset'
+
+
 
 def random_subset(dataset, size, seed=None):
     assert size <= len(dataset), 'subset size cannot larger than dataset'

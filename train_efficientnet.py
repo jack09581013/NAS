@@ -11,31 +11,29 @@ import utils
 import traceback
 import datetime
 from config import *
-from Map2D.Map2D import Map2D
-from simple_model.SimpleModel import SimpleModel
+from efficientnet.v2.efficientnet_v2 import effnetv2_xl
 import matplotlib.pyplot as plt
 
 
 def main():
-    config = Config_Map2D_Train()
+    config = Config_EfficientNet_V2()
     # config = Config_SimpleModel()
     device = config.device
     exception_count = 0
 
     if 'cuda' in device:
         torch.backends.cudnn.benchmark = True
-    if isinstance(config, Config_Map2D_Train):
-        model = Map2D(config)
-    elif isinstance(config, Config_SimpleModel):
-        model = SimpleModel()
 
-    if os.path.isfile(config.resume):
-        print('Load model from ' + config.resume)
-        model.load_state_dict(torch.load(config.resume))
+    if isinstance(config, Config_EfficientNet_V2):
+        model = effnetv2_xl(num_classes=1000)
+
+    if os.path.isfile(config.model_path):
+        print('Load model from ' + config.model_path)
+        model.load_state_dict(torch.load(config.model_path))
     else:
         print('Cannot find any model')
-    model.to(device)
 
+    model.to(device)
     optimizer = optim.Adam(params=model.parameters(), lr=config.learning_rate, betas=(0.9, 0.999))
 
     train_dataset = Map2D_Dataset('trainA', config.height, config.width)
@@ -47,9 +45,6 @@ def main():
     print('Number of training data:', len(train_dataset))
     print('Number of testing data:', len(test_dataset))
     print(f'Total number of model parameters : {sum([p.data.nelement() for p in model.parameters()]):,}')
-
-    if isinstance(config, Config_Map2D_Train):
-        print(f'Number of Auto2D Net parameters: {sum([p.data.nelement() for p in model.auto2d.parameters()]):,}')
 
     train_loader = DataLoader(train_dataset, batch_size=config.batch, shuffle=False,
                               num_workers=config.num_workers, pin_memory=True, drop_last=True)
@@ -86,13 +81,11 @@ def main():
 
             model.eval()
             with torch.no_grad():
-                # for batch_index, (X, Y) in enumerate(train_loader):
                 for batch_index, (X, Y) in enumerate(test_loader):
                     X = X.to(device, non_blocking=True)
                     Y = Y.to(device, non_blocking=True)
 
                     output = model(X)
-                    # error = torch.mean(torch.abs(output - Y))
                     loss = F.smooth_l1_loss(output, Y, reduction='mean')
 
                     # last epoch
@@ -103,7 +96,6 @@ def main():
                         print()
 
                     total_loss.append(loss.data.cpu())
-                    # utils.plot_image(X[0], output, target=True)
 
             test_loss.append(np.array(total_loss).mean())
             print(f'avg test loss: {test_loss[-1]:.3f}')

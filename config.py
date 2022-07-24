@@ -3,7 +3,7 @@ class Config:
         self.dataset_dir = None
         self.dataset_name = None
         self.version = None
-        self.max_version = 2000  # KITTI 2015 v1497 recommended version
+        self.max_version = 1000  # KITTI 2015 v1497 recommended version
         self.batch = 1
         self.learning_rate = 0.001
         self.seed = 0
@@ -11,7 +11,6 @@ class Config:
         self.num_workers = 0
         self.height = None
         self.width = None
-        self.max_disparity = None
         self.device = 'cuda'
 
 class Config_Flyingthings3D(Config):
@@ -27,9 +26,6 @@ class Config_Flyingthings3D(Config):
 class Config_Map2D(Config):
     def __init__(self):
         super().__init__()
-
-        # self.height = 112
-        # self.width = 112
 
         self.height = 16
         self.width = 16
@@ -144,12 +140,10 @@ class Config_Map2D_Train(Config_Map2D):
         self.step = 5
 
         # train
-        self.resume = './models/retrain/Map2D/best_Map2D.pth'
+        self.model_path = './models/retrain/Map2D/best_Map2D.pth'
         self.net_arch_auto2d = './models/retrain/Map2D/auto2d_network_path.npy'
         self.cell_arch_auto2d = './models/retrain/Map2D/auto2d_genotype.npy'
-
         self.save_history_file_path = './images/history_Map2D.png'
-        self.save_best_model_path = './models/retrain/Map2D/best_Map2D.pth'
 
 
 class Config_SimpleModel(Config):
@@ -159,6 +153,24 @@ class Config_SimpleModel(Config):
         self.resume = './models/retrain/SimpleModel/best_SimpleModel.pth'
         self.save_history_file_path = './images/history_SimpleModel.png'
 
-        self.height = 16
-        self.width = 16
+        # Map2D
+        # self.height = 16
+        # self.width = 16
+
+        # EfficientNet_V2
+        self.height = 64
+        self.width = 64
+
+class Config_EfficientNet_V2(Config):
+    def __init__(self):
+        super().__init__()
+
+        self.height = 64
+        self.width = 64
+
+        self.epoch = 50
+
+        # train
+        self.model_path = './models/retrain/EfficientNet_V2/best_EfficientNet_V2.pth'
+        self.save_history_file_path = './images/history_EfficientNet_V2.png'
 
