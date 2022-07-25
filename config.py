@@ -123,21 +123,23 @@ class Config_Map2D_Search(Config_Map2D):
 class Config_Map2D_Decode(Config_Map2D):
     def __init__(self):
         super().__init__()
+        search_config = Config_Map2D_Search()
 
         # decode
         self.resume = './models/retrain/Map2D/best_AutoMap2D.pth'
-        self.step = 5
+        self.step = search_config.step
 
 class Config_Map2D_Train(Config_Map2D):
     def __init__(self):
         super().__init__()
         self.epoch = 50
+        search_config = Config_Map2D_Search()
 
         # settings 3
-        self.num_layers = 8
-        self.filter_multiplier = 4
-        self.block_multiplier = 5
-        self.step = 5
+        self.num_layers = config_search.num_layers
+        self.filter_multiplier = config_search.filter_multiplier
+        self.block_multiplier = config_search.block_multiplier
+        self.step = config_search.step
 
         # train
         self.model_path = './models/retrain/Map2D/best_Map2D.pth'
