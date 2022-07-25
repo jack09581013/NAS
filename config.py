@@ -136,10 +136,10 @@ class Config_Map2D_Train(Config_Map2D):
         search_config = Config_Map2D_Search()
 
         # settings 3
-        self.num_layers = config_search.num_layers
-        self.filter_multiplier = config_search.filter_multiplier
-        self.block_multiplier = config_search.block_multiplier
-        self.step = config_search.step
+        self.num_layers = search_config.num_layers
+        self.filter_multiplier = search_config.filter_multiplier
+        self.block_multiplier = search_config.block_multiplier
+        self.step = search_config.step
 
         # train
         self.model_path = './models/retrain/Map2D/best_Map2D.pth'
