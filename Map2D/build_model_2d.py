@@ -26,10 +26,9 @@ class Auto2D(nn.Module):
         print(f'Feature Net f_initial: {f_initial}')
 
         self.stem0 = ConvBR(4, half_f_initial * self._block_multiplier, 3, stride=1, padding=1)
-        self.stem1 = ConvBR(half_f_initial * self._block_multiplier, half_f_initial * self._block_multiplier, 3,
-                            stride=1, padding=1)
-        self.stem2 = ConvBR(half_f_initial * self._block_multiplier, f_initial * self._block_multiplier, 3, stride=1,
-                            padding=1)
+        self.stem1 = ConvBR(half_f_initial * self._block_multiplier, half_f_initial * self._block_multiplier, 3, stride=1, padding=1)
+        # self.stem2 = ConvBR(half_f_initial * self._block_multiplier, f_initial * self._block_multiplier, 3, stride=1, padding=1)
+        self.stem2 = nn.ConvTranspose2d(half_f_initial * self._block_multiplier, f_initial * self._block_multiplier, kernel_size=4, stride=2, padding=1, bias=False) 
 
         for i in range(self._num_layers):
             if i == 0:
@@ -123,11 +122,15 @@ class Auto2D(nn.Module):
                 self.cells += [cell2]
                 self.cells += [cell3]
                 self.cells += [cell4]
+        
+        self.upsample_4 = nn.ConvTranspose2d(self._num_end, self._num_end, kernel_size=4, stride=2, padding=1, bias=False)
+        self.upsample_8 = nn.ConvTranspose2d(self._num_end * 2, self._num_end * 2, kernel_size=4, stride=2, padding=1, bias=False)
+        self.upsample_16 = nn.ConvTranspose2d(self._num_end * 4, self._num_end * 4, kernel_size=4, stride=2, padding=1, bias=False)
 
         self.last_2 = ConvBR(self._num_end, 3, 1, 1, 0, bn=False, relu=False)
-        self.last_4 = ConvBR(self._num_end * 2, self._num_end, 1, 1, 0)
-        self.last_8 = ConvBR(self._num_end * 4, self._num_end * 2, 1, 1, 0)
-        self.last_16 = ConvBR(self._num_end * 8, self._num_end * 4, 1, 1, 0)
+        self.last_4 = ConvBR(self._num_end * 2, self._num_end, 1, 1, 0, bn=False, relu=False)
+        self.last_8 = ConvBR(self._num_end * 4, self._num_end * 2, 1, 1, 0, bn=False, relu=False)
+        self.last_16 = ConvBR(self._num_end * 8, self._num_end * 4, 1, 1, 0, bn=False, relu=False)
 
     def forward(self, x):
         self.level_2 = []
@@ -340,17 +343,10 @@ class Auto2D(nn.Module):
             self.level_16 = self.level_16[-2:]
 
         # define upsampling
-        h, w = stem2.size()[2], stem2.size()[3]
-        upsample_2 = nn.Upsample(size=(h * 2, w * 2), mode='bilinear', align_corners=True)
-        upsample_4 = nn.Upsample(size=(h, w), mode='bilinear', align_corners=True)
-        upsample_8 = nn.Upsample(size=(h // 2, w // 2), mode='bilinear', align_corners=True)
-        upsample_16 = nn.Upsample(size=(h // 4, w // 4), mode='bilinear', align_corners=True)
-
-        result_2 = upsample_2(self.last_2(self.level_2[-1]))
-        result_4 = upsample_2(self.last_2(upsample_4(self.last_4(self.level_4[-1]))))
-        result_8 = upsample_2(self.last_2(upsample_4(self.last_4(upsample_8(self.last_8(self.level_8[-1]))))))
-        result_16 = upsample_2(
-            self.last_2(upsample_4(self.last_4(upsample_8(self.last_8(upsample_16(self.last_16(self.level_16[-1]))))))))
+        result_2 = self.last_2(self.level_2[-1])
+        result_4 = self.last_2(self.upsample_4(self.last_4(self.level_4[-1])))
+        result_8 = self.last_2(self.upsample_4(self.last_4(self.upsample_8(self.last_8(self.level_8[-1])))))
+        result_16 = self.last_2(self.upsample_4(self.last_4(self.upsample_8(self.last_8(self.upsample_16(self.last_16(self.level_16[-1])))))))
 
         sum_map = result_2 + result_4 + result_8 + result_16
         return sum_map

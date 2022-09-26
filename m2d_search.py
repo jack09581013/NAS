@@ -51,46 +51,50 @@ def main():
 
     best_error = 100
     epoch_loss = []
-    for epoch in range(config.epoch):
+    for epoch in range(1, config.epoch):
         try:
-            print(f"[{epoch + 1}/{config.epoch}] Start training ...........")
             train_loss = []
             test_error = []
 
-            model.train()
-            for batch_index, (X, Y) in enumerate(train_loaderA):
-                # utils.plot_image(X[0, :3], bayer=False)
-                X = X.to(device, non_blocking=True)
-                Y = Y.to(device, non_blocking=True)
+            if epoch < config.alpha_epoch:
+                print(f"[{epoch + 1}/{config.epoch}] Start training ...........")
+                model.train()
+                for batch_index, (X, Y) in enumerate(train_loaderA):
+                    # utils.plot_image(X[0, :3], bayer=False)
+                    X = X.to(device, non_blocking=True)
+                    Y = Y.to(device, non_blocking=True)
 
-                optimizer.zero_grad()
+                    optimizer.zero_grad()
+                    output = model(X)
+                    loss = F.smooth_l1_loss(output, Y)
+                    print(f'loss = {loss:.3f}')
+                    train_loss.append(float(loss))
+                    loss.backward()
+                    optimizer.step()
 
-                output = model(X)
-                loss = F.smooth_l1_loss(output, Y, reduction='mean')
-                print(f'loss = {loss:.3f}')
-                if loss.data.cpu() is not torch.nan:
-                    train_loss.append(loss.data.cpu())
-                loss.backward()
-
-                optimizer.step()
-
-            epoch_loss.append(np.array(train_loss).mean())
-            print(f'total training loss: {epoch_loss[-1]:.3f}')
-
-            if epoch >= config.alpha_epoch - 1:
+            else:
                 print(f"[{epoch + 1}/{config.epoch}] Start searching architecture ...........")
+                model.train()
                 for batch_index, (X, Y) in enumerate(train_loaderB):
                     X = X.to(device, non_blocking=True)
                     Y = Y.to(device, non_blocking=True)
 
-                    architect_optimizer.zero_grad()
-
+                    optimizer.zero_grad()
                     output = model(X)
-                    loss = F.smooth_l1_loss(output, Y.squeeze(1), reduction='mean')
+                    loss = F.smooth_l1_loss(output, Y)
+                    train_loss.append(float(loss))
+                    loss.backward()
+                    optimizer.step()
+
+                    architect_optimizer.zero_grad()
+                    output = model(X)
+                    loss = F.smooth_l1_loss(output, Y)
                     print(f'SA loss = {loss:.3f}')
                     loss.backward()
+                    architect_optimizer.step()     
 
-                    architect_optimizer.step()
+            epoch_loss.append(np.array(train_loss).mean())
+            print(f'total training loss: {epoch_loss[-1]:.3f}')
 
             print(f"[{epoch + 1}/{config.epoch}] Start validation ...........")
             model.eval()
@@ -100,7 +104,7 @@ def main():
                     Y = Y.to(device, non_blocking=True)
 
                     output = model(X)
-                    error = torch.mean(torch.abs(output - Y))
+                    error = F.smooth_l1_loss(output, Y)
                     print(f'error = {error:.3f}')
 
                     test_error.append(error.data.cpu())
@@ -108,9 +112,9 @@ def main():
             total_test_error = np.array(test_error).mean()
             print(f'total testing error: {total_test_error:.3f}, best error: {best_error:.3f}')
 
-            if epoch >= config.alpha_epoch - 1 and total_test_error < best_error:
+            if epoch >= config.alpha_epoch and total_test_error < best_error:
                 print(f'Find best model, error = {total_test_error:.3f}')
-                torch.save(model.state_dict(), config.save_best_model_path)
+                torch.save(model.state_dict(), config.resume)
                 best_error = total_test_error
 
 
@@ -118,9 +122,7 @@ def main():
             # traceback.format_exc()  # Traceback string
             traceback.print_exc()
             exception_count += 1
-            # if exception_count >= 50:
-            #     exit(-1)
-            if config.is_debug:
+            if config.is_debug or exception_count >= 50:
                 exit(-1)
 
     plt.plot(epoch_loss, label='Train', marker='o')

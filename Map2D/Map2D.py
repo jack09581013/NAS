@@ -13,27 +13,15 @@ class Map2D(nn.Module):
         super(Map2D, self).__init__()
 
         network_path_auto2d, cell_arch_auto2d = np.load(config.net_arch_auto2d), np.load(config.cell_arch_auto2d)
-        print(f'Auto2D network path: {network_path_auto2d}\n')
+        print(f'Auto2D network path: {network_path_auto2d}')
 
         network_arch_auto2d = network_layer_to_space(network_path_auto2d)
 
-        self.auto2d = newAuto2D(network_arch_auto2d, cell_arch_auto2d, config=config)        
-        self.last_1 = nn.Conv2d(3, 3, 3, padding=1)
-        self.last_2 = nn.Conv2d(3, 3, 3, padding=1)
-        self.last_3 = nn.Conv2d(3, 3, 3, padding=1)
-        self.last_4 = nn.Conv2d(3, 3, 3, padding=1)
-        self.last_5 = nn.Conv2d(3, 3, 3, padding=1)
-        self.last_6 = nn.Conv2d(3, 3, 3, padding=1)
+        self.auto2d = newAuto2D(network_arch_auto2d, cell_arch_auto2d, config=config)
 
 
     def forward(self, x):
         x = self.auto2d(x)
-        x = self.last_1(x)
-        x = self.last_2(x)
-        x = self.last_3(x)
-        x = self.last_4(x)
-        x = self.last_5(x)
-        x = self.last_6(x)
         return x
 
     def get_params(self):

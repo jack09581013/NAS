@@ -93,7 +93,8 @@ class newAuto2D(nn.Module):
 
         self.stem0 = ConvBR(4, half_initial_fm, 3, stride=1, padding=1)
         self.stem1 = ConvBR(half_initial_fm, initial_fm, 3, stride=1, padding=1)
-        self.stem2 = ConvBR(initial_fm, initial_fm, 3, stride=1, padding=1)
+        # self.stem2 = ConvBR(initial_fm, initial_fm, 3, stride=1, padding=1)
+        self.stem2 = nn.ConvTranspose2d(initial_fm, initial_fm, kernel_size=4, stride=2, padding=1, bias=False) 
 
         filter_param_dict = {0: 1, 1: 2, 2: 4, 3: 8}
 
@@ -133,10 +134,14 @@ class newAuto2D(nn.Module):
 
             self.cells += [_cell]
 
+        self.upsample_4 = nn.ConvTranspose2d(initial_fm, initial_fm, kernel_size=4, stride=2, padding=1, bias=False)
+        self.upsample_8 = nn.ConvTranspose2d(initial_fm * 2, initial_fm * 2, kernel_size=4, stride=2, padding=1, bias=False)
+        self.upsample_16 = nn.ConvTranspose2d(initial_fm * 4, initial_fm * 4, kernel_size=4, stride=2, padding=1, bias=False)
+
         self.last_2 = ConvBR(initial_fm, 3, 1, 1, 0, bn=False, relu=False)
-        self.last_4 = ConvBR(initial_fm * 2, initial_fm, 1, 1, 0)
-        self.last_8 = ConvBR(initial_fm * 4, initial_fm * 2, 1, 1, 0)
-        self.last_16 = ConvBR(initial_fm * 8, initial_fm * 4, 1, 1, 0)
+        self.last_4 = ConvBR(initial_fm * 2, initial_fm, 1, 1, 0, bn=False, relu=False)
+        self.last_8 = ConvBR(initial_fm * 4, initial_fm * 2, 1, 1, 0, bn=False, relu=False)
+        self.last_16 = ConvBR(initial_fm * 8, initial_fm * 4, 1, 1, 0, bn=False, relu=False)
 
     def forward(self, x):
         stem0 = self.stem0(x)
@@ -150,20 +155,14 @@ class newAuto2D(nn.Module):
         last_output = out[-1]
 
         h, w = stem2.size()[2], stem2.size()[3]
-        upsample_2 = nn.Upsample(size=(h * 2, w * 2), mode='bilinear', align_corners=True)
-        upsample_4 = nn.Upsample(size=(h, w), mode='bilinear', align_corners=True)
-        upsample_8 = nn.Upsample(size=(h // 2, w // 2), mode='bilinear', align_corners=True)
-        upsample_16 = nn.Upsample(size=(h // 4, w // 4), mode='bilinear', align_corners=True)
-
         if last_output.size()[2] == h:
-            fea = upsample_2(self.last_2(last_output))
+            fea = self.last_2(last_output)
         elif last_output.size()[2] == h // 2:
-            fea = upsample_2(self.last_2(upsample_4(self.last_4(last_output))))
+            fea = self.last_2(self.upsample_4(self.last_4(last_output)))
         elif last_output.size()[2] == h // 4:
-            fea = upsample_2(self.last_2(upsample_4(self.last_4(upsample_8(self.last_8(last_output))))))
+            fea = self.last_2(self.upsample_4(self.last_4(self.upsample_8(self.last_8(last_output)))))
         elif last_output.size()[2] == h // 8:
-            fea = upsample_2(
-                self.last_2(upsample_4(self.last_4(upsample_8(self.last_8(upsample_16(self.last_16(last_output))))))))
+            fea = self.last_2(self.upsample_4(self.last_4(self.upsample_8(self.last_8(self.upsample_16(self.last_16(last_output)))))))
 
         return fea
 

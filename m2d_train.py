@@ -70,13 +70,11 @@ def main():
                 Y = Y.to(device, non_blocking=True)
 
                 optimizer.zero_grad()
-
                 output = model(X)
-                loss = F.smooth_l1_loss(output, Y, reduction='mean')
+                loss = F.smooth_l1_loss(output, Y)
                 print(f'loss = {loss:.3f}')
-                total_loss.append(loss.data.cpu())
+                total_loss.append(float(loss))
                 loss.backward()
-
                 optimizer.step()
 
             train_loss.append(np.array(total_loss).mean())
@@ -92,8 +90,7 @@ def main():
                     Y = Y.to(device, non_blocking=True)
 
                     output = model(X)
-                    # error = torch.mean(torch.abs(output - Y))
-                    loss = F.smooth_l1_loss(output, Y, reduction='mean')
+                    loss = F.smooth_l1_loss(output, Y)
 
                     # last epoch
                     if epoch >= config.epoch - 1:
@@ -102,8 +99,7 @@ def main():
                         print(Y.data.cpu().numpy().reshape(-1)[:6])
                         print()
 
-                    total_loss.append(loss.data.cpu())
-                    # utils.plot_image(X[0], output, target=True)
+                    total_loss.append(float(loss))
 
             test_loss.append(np.array(total_loss).mean())
             print(f'avg test loss: {test_loss[-1]:.3f}')
@@ -112,9 +108,7 @@ def main():
             # traceback.format_exc()  # Traceback string
             traceback.print_exc()
             exception_count += 1
-            # if exception_count >= 50:
-            #     exit(-1)
-            if config.is_debug:
+            if config.is_debug or exception_count >= 50:
                 exit(-1)
 
     print(f'Total train loss: {np.array(train_loss).mean():.5f}')

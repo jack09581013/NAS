@@ -1,3 +1,6 @@
+import os
+
+
 class Config:
     def __init__(self):
         self.dataset_dir = None
@@ -16,7 +19,7 @@ class Config:
 class Config_Flyingthings3D(Config):
     def __init__(self):
         super().__init__()
-        self.dataset_dir = r'D:\Datasets\flyingthings3d_preprocessing'
+        self.dataset_dir = 'D:/Datasets/flyingthings3d_preprocessing'
         self.dataset_name = 'flyingthings3D'
 
         self.height = 288
@@ -26,7 +29,8 @@ class Config_Flyingthings3D(Config):
 class Config_Map2D(Config):
     def __init__(self):
         super().__init__()
-
+        self.root = './models/retrain/Map2D/'
+        os.makedirs(self.root, exist_ok=True)
         self.height = 16
         self.width = 16
 
@@ -96,29 +100,47 @@ class Config_LEAStereo_Train(Config_Flyingthings3D):
 class Config_Map2D_Search(Config_Map2D):
     def __init__(self):
         super().__init__()
-        # settings 1
+        # settings: original segmtation paper
+        # self.num_layers = 12
+        # self.filter_multiplier = 8
+        # self.block_multiplier = 5
+        # self.step = 5
+
+        # settings: LEAStereo train
         # self.num_layers = 8
         # self.filter_multiplier = 8
         # self.block_multiplier = 4
         # self.step = 3
 
-        # settings 2
-        # self.num_layers = 4
+        # settings LEAStereo train (less feature)
+        # self.num_layers = 8
+        # self.filter_multiplier = 4
+        # self.block_multiplier = 4
+        # self.step = 3
+
+        # settings LEAStereo search
+        # self.num_layers = 8
         # self.filter_multiplier = 4
         # self.block_multiplier = 3
         # self.step = 3
 
-        # settings 3
+        # settings: test version
+        # self.num_layers = 4
+        # self.filter_multiplier = 2
+        # self.block_multiplier = 3
+        # self.step = 3
+
+        # settings: test version
         self.num_layers = 8
-        self.filter_multiplier = 4
-        self.block_multiplier = 5
-        self.step = 5
+        self.filter_multiplier = 2
+        self.block_multiplier = 3
+        self.step = 3
 
         # Other
         self.alpha_epoch = 3
         self.epoch = 40
         self.save_history_file_path = './images/history_AutoMap2D.png'
-        self.save_best_model_path = './models/retrain/Map2D/best_AutoMap2D.pth'
+        self.resume = os.path.join(self.root, 'best_AutoMap2D.pth')
 
 class Config_Map2D_Decode(Config_Map2D):
     def __init__(self):
@@ -126,7 +148,7 @@ class Config_Map2D_Decode(Config_Map2D):
         search_config = Config_Map2D_Search()
 
         # decode
-        self.resume = './models/retrain/Map2D/best_AutoMap2D.pth'
+        self.resume = search_config.resume
         self.step = search_config.step
 
 class Config_Map2D_Train(Config_Map2D):
@@ -142,9 +164,9 @@ class Config_Map2D_Train(Config_Map2D):
         self.step = search_config.step
 
         # train
-        self.model_path = './models/retrain/Map2D/best_Map2D.pth'
-        self.net_arch_auto2d = './models/retrain/Map2D/auto2d_network_path.npy'
-        self.cell_arch_auto2d = './models/retrain/Map2D/auto2d_genotype.npy'
+        self.model_path = os.path.join(self.root, 'best_Map2D.pth')
+        self.net_arch_auto2d = os.path.join(self.root, 'auto2d_network_path.npy')
+        self.cell_arch_auto2d = os.path.join(self.root, 'auto2d_genotype.npy')
         self.save_history_file_path = './images/history_Map2D.png'
 
 
