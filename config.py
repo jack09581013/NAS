@@ -31,6 +31,7 @@ class Config_Map2D(Config):
         super().__init__()
         self.root = './models/retrain/Map2D/'
         os.makedirs(self.root, exist_ok=True)
+        os.makedirs('./images', exist_ok=True)
         self.height = 16
         self.width = 16
 

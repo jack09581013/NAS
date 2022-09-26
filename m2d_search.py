@@ -60,7 +60,6 @@ def main():
                 print(f"[{epoch + 1}/{config.epoch}] Start training ...........")
                 model.train()
                 for batch_index, (X, Y) in enumerate(train_loaderA):
-                    # utils.plot_image(X[0, :3], bayer=False)
                     X = X.to(device, non_blocking=True)
                     Y = Y.to(device, non_blocking=True)
 
