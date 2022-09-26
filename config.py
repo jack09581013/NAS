@@ -125,16 +125,16 @@ class Config_Map2D_Search(Config_Map2D):
         # self.step = 3
 
         # settings: test version
-        # self.num_layers = 4
-        # self.filter_multiplier = 2
-        # self.block_multiplier = 3
-        # self.step = 3
+        # self.num_layers = 8
+        # self.filter_multiplier = 4
+        # self.block_multiplier = 5
+        # self.step = 5
 
         # settings: test version
-        self.num_layers = 8
+        self.num_layers = 4
         self.filter_multiplier = 2
-        self.block_multiplier = 3
-        self.step = 3
+        self.block_multiplier = 2
+        self.step = 2
 
         # Other
         self.alpha_epoch = 3
